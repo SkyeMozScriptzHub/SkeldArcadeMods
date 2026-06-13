@@ -171,10 +171,10 @@
 
       <div class="row">
         <input id="uid" class="input" type="text" placeholder="Put any text" autocomplete="off" />
-        <button class="btn" id="findBtn">Find</button>
+        <button class="btn" id="findBtn">Get</button>
       </div>
 
-      <div class="hint">Example: Marathon → /Marathon → auto downloads the ZIP</div>
+      <div class="hint">Visit Our discord here! discord.gg/VaTtktbqwD </div>
       <div class="route" id="routePreview"></div>
     </div>
   </div>
@@ -196,7 +196,7 @@
         return;
       }
 
-      notify("Checking route...");
+      notify("Checking...");
 
       try {
         const response = await fetch(`/api/download?file=${encodeURIComponent(route)}`, {
@@ -209,7 +209,7 @@
           return;
         }
 
-        notify("Found! Directing you to the route...");
+        notify("Found!");
 
         setTimeout(() => {
           window.location.href = `/${encodeURIComponent(route)}`;
