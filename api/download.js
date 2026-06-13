@@ -8,17 +8,23 @@ export default function handler(req, res) {
     return res.status(400).send("Missing file name");
   }
 
-  const fileKey = String(rawKey).trim();
-
+  const fileKey = String(rawKey).normalize("NFKC").trim();
   const filesDir = path.join(process.cwd(), "files");
 
   if (!fs.existsSync(filesDir)) {
     return res.status(500).send("Files folder not found");
   }
 
-  const foundFile = fs
-    .readdirSync(filesDir)
-    .find((name) => path.parse(name).name.toLowerCase() === fileKey.toLowerCase() && name.toLowerCase().endsWith(".zip"));
+  const foundFile = fs.readdirSync(filesDir).find((file) => {
+    if (!file.toLowerCase().endsWith(".zip")) return false;
+
+    const nameWithoutExt = path.parse(file).name;
+
+    return (
+      nameWithoutExt.normalize("NFKC").toLowerCase().trim() ===
+      fileKey.toLowerCase().trim()
+    );
+  });
 
   if (!foundFile) {
     return res.status(404).send("File not found");
