@@ -4,15 +4,25 @@ import path from "path";
 export default function handler(req, res) {
   const rawKey = req.query.file;
 
-  if (!rawKey) return res.status(400).send("Missing file");
+  if (!rawKey) {
+    return res.status(400).send("Missing file name");
+  }
 
-  const fileKey = String(rawKey).toLowerCase().trim();
+  const fileKey = String(rawKey).normalize("NFKC").trim();
   const filesDir = path.join(process.cwd(), "files");
 
-  const foundFile = fs.readdirSync(filesDir).find(file => {
+  if (!fs.existsSync(filesDir)) {
+    return res.status(500).send("Files folder not found");
+  }
+
+  const foundFile = fs.readdirSync(filesDir).find((file) => {
+    if (!file.toLowerCase().endsWith(".zip")) return false;
+
+    const nameWithoutExt = path.parse(file).name;
+
     return (
-      file.toLowerCase().endsWith(".zip") &&
-      path.parse(file).name.toLowerCase().trim() === fileKey
+      nameWithoutExt.normalize("NFKC").toLowerCase().trim() ===
+      fileKey.toLowerCase().trim()
     );
   });
 
@@ -21,13 +31,9 @@ export default function handler(req, res) {
   }
 
   const filePath = path.join(filesDir, foundFile);
-  const data = fs.readFileSync(filePath);
+  const fileBuffer = fs.readFileSync(filePath);
 
   res.setHeader("Content-Type", "application/zip");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${foundFile}"`
-  );
-
-  res.status(200).end(data);
+  res.setHeader("Content-Disposition", `attachment; filename="${foundFile}"`);
+  res.status(200).send(fileBuffer);
 }
