@@ -1,203 +1,106 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkeldGames</title>
-  <style>
-    @font-face {
-      font-family: "MainFont";
-      src: url("/fonts/main.ttf") format("truetype");
-      font-display: swap;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkeldGames</title>
 
-    :root {
-      --bg: #000;
-      --panel: rgba(10, 10, 10, 0.72);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --text: #fff;
-      --muted: rgba(255, 255, 255, 0.68);
-    }
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: Arial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  .box {
+    width: 320px;
+    text-align: center;
+  }
 
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+  .title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
 
-    body {
-      position: relative;
-    }
+  .file {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      pointer-events: none;
-    }
+  .bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50px;
+    overflow: hidden;
+  }
 
-    .wrap {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
+  .fill {
+    height: 100%;
+    width: 0%;
+    background: white;
+    transition: width 0.35s ease;
+  }
 
-    .card {
-      width: min(760px, 100%);
-      border: 1px solid var(--panel-border);
-      background: linear-gradient(180deg, rgba(18, 18, 18, 0.92), var(--panel));
-      backdrop-filter: blur(18px);
-      border-radius: 28px;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
-      padding: 34px;
-      text-align: center;
-    }
-
-    .brand {
-      font-family: "MainFont", sans-serif;
-      font-size: clamp(38px, 7vw, 72px);
-      line-height: 1;
-      letter-spacing: 0.03em;
-      margin: 0 0 16px;
-    }
-
-    .status {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .spinner {
-      width: 52px;
-      height: 52px;
-      margin: 28px auto 0;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 255, 255, 0.12);
-      border-top-color: #fff;
-      animation: spin 0.9s linear infinite;
-    }
-
-    .file {
-      margin-top: 18px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.9);
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      word-break: break-all;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .card {
-        padding: 24px;
-        border-radius: 22px;
-      }
-    }
-  </style>
+  .percent {
+    margin-top: 10px;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+</style>
 </head>
-<body>
-  <canvas id="particles"></canvas>
 
-  <div class="wrap">
-    <div class="card">
-      <h1 class="brand">SkeldGames</h1>
-      <p class="status">Downloading file...</p>
-      <div class="spinner"></div>
-      <div class="file" id="fileName">Preparing route...</div>
-    </div>
+<body>
+
+<div class="box">
+  <div class="title">Preparing download...</div>
+  <div class="file" id="fileName">Loading...</div>
+
+  <div class="bar">
+    <div class="fill" id="fill"></div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const file = params.get("file");
-    const fileName = document.getElementById("fileName");
+  <div class="percent" id="percent">0%</div>
+</div>
 
-    if (file) {
-      fileName.textContent = `Route: ${file}`;
-      setTimeout(() => {
-        window.location.href = `/api/download?file=${encodeURIComponent(file)}`;
-      }, 700);
-    } else {
-      fileName.textContent = "Not Found.";
-    }
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const file = params.get("file");
 
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
+  const fill = document.getElementById("fill");
+  const percent = document.getElementById("percent");
+  const fileName = document.getElementById("fileName");
 
-    let w = 0, h = 0, dpr = 1;
-    const dots = [];
-    const DOT_COUNT = 90;
+  if (!file) {
+    fileName.textContent = "Not Found";
+  } else {
+    fileName.textContent = file;
 
-    function resize() {
-      dpr = Math.max(1, window.devicePixelRatio || 1);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Fake instant progress animation
+    let p = 0;
 
-      dots.length = 0;
-      for (let i = 0; i < DOT_COUNT; i++) {
-        dots.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: 0.8 + Math.random() * 1.8,
-          vx: (-0.12 + Math.random() * 0.24),
-          vy: (-0.12 + Math.random() * 0.24),
-          a: 0.22 + Math.random() * 0.45
-        });
+    const interval = setInterval(() => {
+      p += 20;
+      fill.style.width = p + "%";
+      percent.textContent = p + "%";
+
+      if (p >= 100) {
+        clearInterval(interval);
+
+        // instant download after fill
+        window.location.replace(
+          `/api/download?file=${encodeURIComponent(file)}`
+        );
       }
-    }
+    }, 30);
+  }
+</script>
 
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-
-      for (const dot of dots) {
-        dot.x += dot.vx;
-        dot.y += dot.vy;
-
-        if (dot.x < -10) dot.x = w + 10;
-        if (dot.x > w + 10) dot.x = -10;
-        if (dot.y < -10) dot.y = h + 10;
-        if (dot.y > h + 10) dot.y = -10;
-
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${dot.a})`;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(draw);
-    }
-
-    window.addEventListener("resize", resize);
-    resize();
-    draw();
-  </script>
 </body>
 </html>
