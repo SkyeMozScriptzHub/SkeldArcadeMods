@@ -6,7 +6,7 @@
     },
     {
       "source": "/:file",
-      "destination": "/loading.html?file=:file"
+      "destination": "/index.html"
     }
   ]
 }
