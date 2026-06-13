@@ -4,26 +4,23 @@ import path from "path";
 export default function handler(req, res) {
   const fileKey = req.query.file;
 
-  const files = {
-    Marathon: "Marathon.zip",
-    FarmXp: "FarmXp.zip",
-    ExtremeChaos: "ExtremeChaos.zip",
-  };
+  const filePath = path.join(
+    process.cwd(),
+    "files",
+    `${fileKey}.zip`
+  );
 
-  const filename = files[fileKey];
-
-  if (!filename) {
+  if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
 
-  const filePath = path.join(process.cwd(), "files", filename);
-
   const fileBuffer = fs.readFileSync(filePath);
 
+  res.setHeader("Content-Type", "application/zip");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename="${filename}"`
+    `attachment; filename="${fileKey}.zip"`
   );
 
-  res.send(fileBuffer);
+  res.status(200).send(fileBuffer);
 }
