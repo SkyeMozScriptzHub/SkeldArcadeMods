@@ -1,286 +1,113 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkeldGames</title>
-  <style>
-    @font-face {
-      font-family: "MainFont";
-      src: url("/fonts/main.ttf") format("truetype");
-      font-display: swap;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkeldGames</title>
 
-    :root {
-      --bg: #000;
-      --panel: rgba(10, 10, 10, 0.72);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --text: #fff;
-      --muted: rgba(255, 255, 255, 0.68);
-    }
+<style>
+@font-face {
+  font-family: "MainFont";
+  src: url("/fonts/main.ttf") format("truetype");
+}
 
-    * {
-      box-sizing: border-box;
-    }
+body {
+  margin: 0;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: Inter, Arial;
+  overflow: hidden;
+}
 
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+/* center UI */
+.wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    body {
-      position: relative;
-    }
+/* card */
+.card {
+  width: 500px;
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      pointer-events: none;
-    }
+h1 {
+  font-family: "MainFont";
+  margin-bottom: 10px;
+}
 
-    .wrap {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+}
 
-    .card {
-      width: min(760px, 100%);
-      border: 1px solid var(--panel-border);
-      background: linear-gradient(180deg, rgba(18, 18, 18, 0.92), var(--panel));
-      backdrop-filter: blur(18px);
-      border-radius: 28px;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
-      padding: 34px;
-    }
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
 
-    .brand {
-      font-family: "MainFont", sans-serif;
-      font-size: clamp(38px, 7vw, 72px);
-      line-height: 1;
-      letter-spacing: 0.03em;
-      margin: 0 0 12px;
-    }
-
-    .subtitle {
-      margin: 0 0 28px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-    }
-
-    .input {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.10);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
-      outline: none;
-      border-radius: 18px;
-      padding: 16px 18px;
-      font-size: 15px;
-      transition: 0.2s ease;
-    }
-
-    .input::placeholder {
-      color: rgba(255, 255, 255, 0.35);
-    }
-
-    .input:focus {
-      border-color: rgba(255, 255, 255, 0.24);
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
-    }
-
-    .btn {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: #fff;
-      color: #000;
-      border-radius: 18px;
-      padding: 15px 18px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s ease;
-      white-space: nowrap;
-      min-width: 112px;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.88);
-      transform: translateY(-1px);
-    }
-
-    .hint {
-      margin-top: 16px;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.45);
-    }
-
-    .route {
-      margin-top: 12px;
-      font-size: 14px;
-      min-height: 20px;
-      color: rgba(255, 255, 255, 0.9);
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    @media (max-width: 640px) {
-      .card {
-        padding: 24px;
-        border-radius: 22px;
-      }
-
-      .row {
-        grid-template-columns: 1fr;
-      }
-
-      .btn {
-        width: 100%;
-      }
-    }
-  </style>
+/* tiny status */
+.status {
+  margin-top: 15px;
+  font-size: 13px;
+  opacity: 0.7;
+}
+</style>
 </head>
+
 <body>
-  <canvas id="particles"></canvas>
 
-  <div class="wrap">
-    <div class="card">
-      <h1 class="brand">SkeldGames</h1>
-      <p class="subtitle">You are in the Main page, Type any UId here.</p>
+<div class="wrap">
+  <div class="card">
+    <h1>SkeldGames</h1>
+    <div>You are in Main Page</div>
 
-      <div class="row">
-        <input id="uid" class="input" type="text" placeholder="Put any text" autocomplete="off" />
-        <button class="btn" id="findBtn">Get</button>
-      </div>
+    <input id="input" placeholder="Type file name..." />
+    <button onclick="go()">Find</button>
 
-      <div class="hint">Visit Our discord here! discord.gg/VaTtktbqwD </div>
-      <div class="route" id="routePreview"></div>
-    </div>
+    <div class="status" id="status"></div>
   </div>
+</div>
 
-  <script>
-    const input = document.getElementById("uid");
-    const preview = document.getElementById("routePreview");
-    const findBtn = document.getElementById("findBtn");
+<script>
+const path = window.location.pathname.replace("/", "");
+const status = document.getElementById("status");
 
-    function notify(text) {
-      preview.textContent = text;
-    }
+// DIRECT MODE (auto download)
+if (path) {
+  status.innerText = "Preparing download...";
 
-    async function checkAndGo() {
-      const route = input.value.trim();
+  setTimeout(() => {
+    window.location.replace(
+      `/api/download?file=${encodeURIComponent(path)}`
+    );
+  }, 200);
+}
 
-      if (!route) {
-        notify("Not Found.");
-        return;
-      }
+// MAIN PAGE MODE
+function go() {
+  const val = document.getElementById("input").value.trim();
+  if (!val) return;
 
-      notify("Checking...");
+  window.location.href = `/${encodeURIComponent(val)}`;
+}
+</script>
 
-      try {
-        const response = await fetch(`/api/download?file=${encodeURIComponent(route)}`, {
-          method: "GET",
-          cache: "no-store"
-        });
-
-        if (!response.ok) {
-          notify("Not Found.");
-          return;
-        }
-
-        notify("Found!");
-
-        setTimeout(() => {
-          window.location.href = `/${encodeURIComponent(route)}`;
-        }, 500);
-      } catch (err) {
-        notify("Not Found.");
-      }
-    }
-
-    findBtn.addEventListener("click", checkAndGo);
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        checkAndGo();
-      }
-    });
-
-    const canvas = document.getElementById("particles");
-    const ctx = canvas.getContext("2d");
-
-    let w = 0, h = 0, dpr = 1;
-    const dots = [];
-    const DOT_COUNT = 90;
-
-    function resize() {
-      dpr = Math.max(1, window.devicePixelRatio || 1);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      dots.length = 0;
-      for (let i = 0; i < DOT_COUNT; i++) {
-        dots.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: 0.8 + Math.random() * 1.8,
-          vx: (-0.12 + Math.random() * 0.24),
-          vy: (-0.12 + Math.random() * 0.24),
-          a: 0.22 + Math.random() * 0.45
-        });
-      }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-
-      for (const dot of dots) {
-        dot.x += dot.vx;
-        dot.y += dot.vy;
-
-        if (dot.x < -10) dot.x = w + 10;
-        if (dot.x > w + 10) dot.x = -10;
-        if (dot.y < -10) dot.y = h + 10;
-        if (dot.y > h + 10) dot.y = -10;
-
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${dot.a})`;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(draw);
-    }
-
-    window.addEventListener("resize", resize);
-    resize();
-    draw();
-  </script>
 </body>
 </html>
