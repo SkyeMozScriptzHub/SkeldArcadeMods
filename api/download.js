@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
+const fs = require("fs");
+const path = require("path");
 
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const rawKey = req.query.file;
 
   if (!rawKey) {
@@ -35,5 +35,6 @@ export default function handler(req, res) {
 
   res.setHeader("Content-Type", "application/zip");
   res.setHeader("Content-Disposition", `attachment; filename="${foundFile}"`);
-  res.status(200).send(fileBuffer);
-}
+  res.setHeader("Content-Length", fileBuffer.length);
+  res.status(200).end(fileBuffer);
+};
