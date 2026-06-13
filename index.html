@@ -174,7 +174,7 @@
         <button class="btn" id="findBtn">Find</button>
       </div>
 
-      <div class="hint">Example: file1 → /file1 → auto downloads the file</div>
+      <div class="hint">Example: Marathon → /Marathon → auto downloads the ZIP</div>
       <div class="route" id="routePreview"></div>
     </div>
   </div>
@@ -184,13 +184,11 @@
     const preview = document.getElementById("routePreview");
     const findBtn = document.getElementById("findBtn");
 
-    const validRoutes = ["file1", "file2", "file3"];
-
     function notify(text) {
       preview.textContent = text;
     }
 
-    findBtn.addEventListener("click", () => {
+    async function checkAndGo() {
       const route = input.value.trim();
 
       if (!route) {
@@ -198,26 +196,37 @@
         return;
       }
 
-      if (validRoutes.includes(route)) {
+      notify("Checking route...");
+
+      try {
+        const response = await fetch(`/api/download?file=${encodeURIComponent(route)}`, {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          notify("Not Found.");
+          return;
+        }
+
         notify("Found! Directing you to the route...");
 
         setTimeout(() => {
           window.location.href = `/${encodeURIComponent(route)}`;
-        }, 1000);
-
-        return;
+        }, 500);
+      } catch (err) {
+        notify("Not Found.");
       }
+    }
 
-      notify("Not Found.");
-    });
+    findBtn.addEventListener("click", checkAndGo);
 
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        findBtn.click();
+        checkAndGo();
       }
     });
 
-    // Particle background
     const canvas = document.getElementById("particles");
     const ctx = canvas.getContext("2d");
 
